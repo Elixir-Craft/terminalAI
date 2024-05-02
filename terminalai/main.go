@@ -65,6 +65,10 @@ func getPrompt() (string, string) {
 
 	}
 
+	// fmt.Println(promptText)
+	// fmt.Println(*output)
+	// os.Exit(0)
+
 	return promptText, *output
 
 }
@@ -82,7 +86,7 @@ func outputResponse(response string, output string) {
 }
 
 func main() {
-	fmt.Println("Terminal AI")
+	// fmt.Println("Terminal AI")
 	client, ctx, _ := configureAPI()
 	model := client.GenerativeModel("gemini-pro")
 
