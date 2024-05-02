@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,19 +12,19 @@ import (
 	"google.golang.org/api/option"
 )
 
+func String(p genai.Part) string {
+	return fmt.Sprintf("%s", p)
+}
+
 func configureAPI() (*genai.Client, context.Context, error) {
 	err := godotenv.Load()
 	if err != nil {
-		// Handle error (e.g., file not found)
 		panic("Error loading .env file")
 	}
 
 	apiKey := os.Getenv("GOOGLE_AI_API_KEY")
 
-	fmt.Println(apiKey)
-
 	ctx := context.Background()
-	// Access your API key as an environment variable (see "Set up your API key" above)
 	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
 		log.Fatal(err)
@@ -31,26 +32,69 @@ func configureAPI() (*genai.Client, context.Context, error) {
 	return client, ctx, err
 }
 
-// defer client.Close()
+func getPrompt() (string, string) {
+
+	var input = flag.String("i", "", "Input File Path")
+	var output = flag.String("o", "", "Output File Path")
+	var prompt = flag.String("p", "", "Prompt")
+
+	var promptText string
+
+	flag.Parse()
+
+	if *input == "" && *prompt == "" {
+		if len(os.Args) < 2 {
+			log.Fatal("No prompt provided")
+		}
+		promptText = os.Args[1]
+
+	} else {
+
+		if *input != "" {
+			inputFile, err := os.ReadFile(*input)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			inputFileContent := string(inputFile)
+			promptText = inputFileContent + "\n\n" + *prompt
+
+		} else {
+			promptText = *prompt
+		}
+
+	}
+
+	return promptText, *output
+
+}
+
+func outputResponse(response string, output string) {
+	if output != "" {
+		err := os.WriteFile(output, []byte(response), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		fmt.Println(response)
+	}
+
+}
 
 func main() {
 	fmt.Println("Terminal AI")
-
 	client, ctx, _ := configureAPI()
-
-	// fmt.Println(os.Getenv("GOOGLE_AI_API_KEY"))
-
 	model := client.GenerativeModel("gemini-pro")
 
-	// em := client.EmbeddingModel("embedding-001")
+	prompt, output := getPrompt()
 
-	resp, err := model.GenerateContent(ctx, genai.Text("Write a story about a magic backpack."))
+	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		fmt.Println(resp.Candidates[0].Content)
 	}
+	response := resp.Candidates[0].Content.Parts[0]
 
-	// fmt.Println(resp.Embedding.Values)
+	outputResponse(String(response), output)
+
 }
