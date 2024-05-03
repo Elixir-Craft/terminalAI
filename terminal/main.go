@@ -39,10 +39,18 @@ func getPrompt() (string, string) {
 	var output = flag.String("o", "", "Output File Path")
 	var prompt = flag.String("p", "", "Prompt")
 	var clipBoard = flag.Bool("c", false, "Prompt From Clipboard")
+	var version = flag.Bool("v", false, "Version")
+
+	flag.Parse()
 
 	var promptText string
 
-	flag.Parse()
+	if *version {
+		fmt.Println("Terminal AI v0.1")
+		// Github URL
+		fmt.Println("https://github.com/Elixir-Craft/terminalAI")
+		os.Exit(0)
+	}
 
 	if *input == "" && *prompt == "" && !*clipBoard {
 		if len(os.Args) < 2 {
