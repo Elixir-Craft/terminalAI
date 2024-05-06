@@ -22,7 +22,9 @@ jobs:
         go-version: '1.22'
 
     - name: Build
-      run: go build -v -o out ./...
+      run: |
+        mkdir out
+        go build -v -o out ./...
 
     - name: Test
       run: go test -v ./...
