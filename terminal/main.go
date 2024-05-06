@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"terminalAI/models"
@@ -46,7 +47,15 @@ func getPrompt() (string, string) {
 			}
 			promptText = clipContent + "\n\n" + *prompt
 		} else if *input != "" {
-			inputFile, err := os.ReadFile(*input)
+			var (
+				inputFile []byte
+				err       error
+			)
+			if *input == "-" {
+				inputFile, err = io.ReadAll(os.Stdin)
+			} else {
+				inputFile, err = os.ReadFile(*input)
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
