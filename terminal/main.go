@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"terminalAI/chat"
 	"terminalAI/models"
 
 	"github.com/atotto/clipboard"
@@ -21,9 +22,18 @@ func getPrompt() (string, string) {
 	var clipBoard = flag.Bool("c", false, "Prompt From Clipboard")
 	var version = flag.Bool("v", false, "Version")
 
+	var chatO = flag.Bool("chat", false, "Chat Mode")
+
 	flag.Parse()
 
 	var promptText string
+
+	if *chatO {
+		fmt.Println("Chat Mode")
+
+		chat.ChatMode()
+
+	}
 
 	if *version {
 		fmt.Println("Terminal AI v0.1")
