@@ -6,7 +6,7 @@ require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/google/generative-ai-go v0.11.0
 	github.com/joho/godotenv v1.5.1
-	github.com/sashabaranov/go-openai v1.23.0
+	github.com/sashabaranov/go-openai v1.23.1
 	google.golang.org/api v0.172.0
 )
 
