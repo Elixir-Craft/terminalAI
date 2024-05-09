@@ -7,9 +7,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"terminalAI/chat"
 	"terminalAI/models"
 
 	"github.com/atotto/clipboard"
+	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 )
 
@@ -21,9 +23,22 @@ func getPrompt() (string, string) {
 	var clipBoard = flag.Bool("c", false, "Prompt From Clipboard")
 	var version = flag.Bool("v", false, "Version")
 
+	var chatMode = flag.Bool("chat", false, "Chat Mode")
+
 	flag.Parse()
 
 	var promptText string
+
+	if *chatMode {
+
+		color.Cyan("Terminal AI Chat Mode\n\n")
+
+		// Instructions
+		color.Yellow("Type '/exit' to exit chat mode\n\n")
+
+		chat.ChatMode()
+
+	}
 
 	if *version {
 		fmt.Println("Terminal AI v0.1")
