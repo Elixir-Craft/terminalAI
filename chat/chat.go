@@ -1,8 +1,11 @@
 package chat
 
 import (
+	"bufio"
 	"fmt"
-	// uuid
+	"os"
+
+	"github.com/fatih/color"
 	"github.com/google/uuid"
 )
 
@@ -11,7 +14,8 @@ func ChatMode() {
 	var response string
 	var userID string
 
-	// uuid
+	reader := bufio.NewReader(os.Stdin)
+
 	userID = uuid.New().String()
 	fmt.Printf("You: ")
 	fmt.Scanln(&prompt)
@@ -23,10 +27,11 @@ func ChatMode() {
 			break
 		} else {
 			response = chat(userID, prompt)
-			fmt.Println("Model: ", response)
+			color.Green("Model: %s", response)
 			prompt = ""
 			fmt.Printf("You: ")
-			fmt.Scanln(&prompt)
+			prompt, _ = reader.ReadString('\n')
+
 		}
 
 	}

@@ -27,25 +27,6 @@ func createGeminiClient() (*genai.Client, error) {
 	return client, nil
 }
 
-// func generateContentWithModel(ctx context.Context, modelID string, temperature float32, prompt ...genai.Part) (*genai.GenerateContentResponse, error) {
-// 	client, err := createGeminiClient()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer client.Close()
-
-// 	model := client.GenerativeModel(modelID)
-// 	model.Temperature = &temperature
-
-// 	log.Printf("Begin processing with model %q...\n", modelID)
-// 	resp, err := model.GenerateContent(ctx, prompt...)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to generate content with model %q: %v", modelID, err)
-// 	}
-// 	log.Printf("Finished processing with model %q: %v\n", modelID, resp)
-// 	return resp, nil
-// }
-
 func startNewChatSession() *genai.ChatSession {
 	ctx := context.Background()
 	cs := createChatSession(ctx, os.Getenv("TERMINAL_AI_MODEL"), chatTemperature)
@@ -69,8 +50,8 @@ func send(cs *genai.ChatSession, msg string) *genai.GenerateContentResponse {
 	}
 
 	ctx := context.Background()
-	// log.Printf("== Me: %s\n== Model:\n", msg)
 	res, err := cs.SendMessage(ctx, genai.Text(msg))
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +63,6 @@ func printResponse(resp *genai.GenerateContentResponse) string {
 	for _, cand := range resp.Candidates {
 		for _, part := range cand.Content.Parts {
 			ret = ret + fmt.Sprintf("%v", part)
-			// log.Println(part)
 		}
 	}
 	return ret
