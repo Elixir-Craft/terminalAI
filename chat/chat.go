@@ -2,14 +2,17 @@ package chat
 
 import (
 	"fmt"
+	// uuid
+	"github.com/google/uuid"
 )
 
 func ChatMode() {
 	var prompt string
 	var response string
 	var userID string
-	userID = "123479862d"
 
+	// uuid
+	userID = uuid.New().String()
 	fmt.Printf("You: ")
 	fmt.Scanln(&prompt)
 
