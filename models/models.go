@@ -5,9 +5,9 @@ import (
 	"log"
 )
 
-type Model interface {
-	Generate(ctx context.Context, text string) (string, error)
-}
+type Model StartChat
+type StartChat func() Chat
+type Chat func(ctx context.Context, prompt string) (string, error)
 
 type Backend func(modelName string) Model
 

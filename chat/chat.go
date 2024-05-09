@@ -2,47 +2,36 @@ package chat
 
 import (
 	"bufio"
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
+	"terminalAI/models"
 
 	"github.com/fatih/color"
-	"github.com/google/uuid"
 )
 
-func ChatMode() {
-	var prompt string
-	var response string
-	var userID string
-
+func ChatMode(model models.Model) {
 	reader := bufio.NewReader(os.Stdin)
-
-	userID = uuid.New().String()
-	fmt.Printf("You: ")
-	prompt, _ = reader.ReadString('\n')
-	prompt = strings.TrimSpace(prompt)
+	chat := model()
 
 	for {
+		fmt.Printf("You: ")
+		prompt, _ := reader.ReadString('\n')
+		prompt = strings.TrimSpace(prompt)
 
 		if prompt == "/exit" {
 			color.Cyan("Goodbye!")
-			os.Exit(0)
-
+			break
 		} else if prompt == "" {
 			color.Red("No prompt provided")
-			prompt = ""
-
 		} else {
-			response = chat(userID, prompt)
+			response, err := chat(context.Background(), prompt)
+			if err != nil {
+				log.Fatal(err)
+			}
 			color.Green("Model: %s", response)
-			prompt = ""
-
 		}
-
-		fmt.Printf("You: ")
-		prompt, _ = reader.ReadString('\n')
-		prompt = strings.TrimSpace(prompt)
-
 	}
-
 }
