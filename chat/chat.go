@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
@@ -18,21 +19,29 @@ func ChatMode() {
 
 	userID = uuid.New().String()
 	fmt.Printf("You: ")
-	fmt.Scanln(&prompt)
+	prompt, _ = reader.ReadString('\n')
+	prompt = strings.TrimSpace(prompt)
 
 	for {
 
-		if prompt == "" {
-			fmt.Println("No prompt provided")
-			break
+		if prompt == "/exit" {
+			color.Cyan("Goodbye!")
+			os.Exit(0)
+
+		} else if prompt == "" {
+			color.Red("No prompt provided")
+			prompt = ""
+
 		} else {
 			response = chat(userID, prompt)
 			color.Green("Model: %s", response)
 			prompt = ""
-			fmt.Printf("You: ")
-			prompt, _ = reader.ReadString('\n')
 
 		}
+
+		fmt.Printf("You: ")
+		prompt, _ = reader.ReadString('\n')
+		prompt = strings.TrimSpace(prompt)
 
 	}
 
