@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"os"
 
@@ -27,15 +26,15 @@ func init() {
 		return func() Chat {
 			c := model.StartChat()
 
-			return func(ctx context.Context, prompt string) (io.Reader, error) {
+			return func(ctx context.Context, prompt string) (StreamingOutput, error) {
 				stream := c.SendMessageStream(ctx, genai.Text(prompt))
 				if err != nil {
 					return nil, err
 				}
 
-				r, w := io.Pipe()
+				c := make(chan string)
 				go func() {
-					defer w.Close()
+					defer close(c)
 					for {
 						res, err := stream.Next()
 						if err == iterator.Done {
@@ -49,13 +48,10 @@ func init() {
 						for _, part := range res.Candidates[0].Content.Parts {
 							str += fmt.Sprintf("%v", part)
 						}
-						_, err = w.Write([]byte(str))
-						if err != nil {
-							log.Fatal(err)
-						}
+						c <- str
 					}
 				}()
-				return r, nil
+				return c, nil
 			}
 		}
 	})

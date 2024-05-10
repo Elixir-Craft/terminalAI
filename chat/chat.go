@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strings"
@@ -33,13 +32,15 @@ func ChatMode(model models.Model) {
 				log.Fatal(err)
 			}
 
-			color.Set(color.FgGreen)
-			fmt.Print("Model: ")
-			_, err = io.Copy(os.Stdout, response)
+			func() {
+				color.Set(color.FgGreen)
+				defer color.Unset()
+				fmt.Print("Model: ")
+				_, err = response.WriteTo(os.Stdout)
+			}()
 			if err != nil {
 				log.Fatal(err)
 			}
-			color.Unset()
 		}
 	}
 }

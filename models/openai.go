@@ -1,7 +1,6 @@
 package models
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"log"
@@ -52,7 +51,7 @@ func NewOpenAIModel(modelName string, cfg *OpenAIConfig) Model {
 		var messages []openai.ChatCompletionMessage
 		messages = append(messages, cfg.Prefix...)
 
-		return func(ctx context.Context, prompt string) (io.Reader, error) {
+		return func(ctx context.Context, prompt string) (StreamingOutput, error) {
 			messages = append(messages, openai.ChatCompletionMessage{
 				Role:    openai.ChatMessageRoleUser,
 				Content: prompt,
@@ -78,7 +77,10 @@ func NewOpenAIModel(modelName string, cfg *OpenAIConfig) Model {
 					Role:    openai.ChatMessageRoleAssistant,
 					Content: msg,
 				})
-				return bytes.NewReader([]byte(msg)), nil
+				c := make(chan string, 1)
+				c <- msg
+				close(c)
+				return c, nil
 			}
 
 			stream, err := client.CreateChatCompletionStream(ctx, req)
@@ -86,9 +88,9 @@ func NewOpenAIModel(modelName string, cfg *OpenAIConfig) Model {
 				return nil, err
 			}
 
-			r, w := io.Pipe()
+			c := make(chan string)
 			go func() {
-				defer w.Close()
+				defer close(c)
 				msg := ""
 				for {
 					res, err := stream.Recv()
@@ -101,17 +103,14 @@ func NewOpenAIModel(modelName string, cfg *OpenAIConfig) Model {
 
 					delta := res.Choices[0].Delta.Content
 					msg += delta
-					_, err = w.Write([]byte(delta))
-					if err != nil {
-						log.Fatal(err)
-					}
+					c <- delta
 				}
 				messages = append(messages, openai.ChatCompletionMessage{
 					Role:    openai.ChatMessageRoleAssistant,
 					Content: msg,
 				})
 			}()
-			return r, nil
+			return c, nil
 		}
 	}
 }

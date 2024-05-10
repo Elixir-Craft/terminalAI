@@ -99,22 +99,18 @@ func getModel() models.Model {
 	return models.NewModel(backend, model)
 }
 
-func outputResponse(response io.Reader, output string) {
+func outputResponse(response models.StreamingOutput, output string) {
+	var f *os.File
 	if output == "" || output == "-" {
-		_, err := io.Copy(os.Stdout, response)
+		f = os.Stdout
+	} else {
+		f, err := os.OpenFile(output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
-		return
+		defer f.Close()
 	}
-
-	f, err := os.OpenFile(output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	_, err = io.Copy(f, response)
+	_, err := response.WriteTo(f)
 	if err != nil {
 		log.Fatal(err)
 	}
