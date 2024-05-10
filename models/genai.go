@@ -11,33 +11,32 @@ import (
 )
 
 func init() {
-	RegisterBackend("genai", NewGenAIModel)
-}
+	RegisterBackend("genai", func(modelName string) Model {
+		apiKey := os.Getenv("GOOGLE_AI_API_KEY")
 
-func NewGenAIModel(modelName string) Model {
-	apiKey := os.Getenv("GOOGLE_AI_API_KEY")
+		client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
-	if err != nil {
-		log.Fatal(err)
-	}
-	model := client.GenerativeModel(modelName)
+		model := client.GenerativeModel(modelName)
+		model.Temperature = genai.Ptr[float32](0.3)
 
-	return &GenAiModel{model: model}
-}
+		return func() Chat {
+			c := model.StartChat()
 
-type GenAiModel struct {
-	model *genai.GenerativeModel
-}
+			return func(ctx context.Context, prompt string) (string, error) {
+				resp, err := c.SendMessage(ctx, genai.Text(prompt))
+				if err != nil {
+					return "", err
+				}
 
-func (model *GenAiModel) Generate(ctx context.Context, prompt string) (string, error) {
-	resp, err := model.model.GenerateContent(ctx, genai.Text(prompt))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	response := resp.Candidates[0].Content.Parts[0]
-	responseText := fmt.Sprintf("%s", response)
-
-	return responseText, nil
+				str := ""
+				for _, part := range resp.Candidates[0].Content.Parts {
+					str += fmt.Sprintf("%v", part)
+				}
+				return str, nil
+			}
+		}
+	})
 }

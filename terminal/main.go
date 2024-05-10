@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getPrompt() (string, string) {
+func getPrompt() (string, string, bool) {
 
 	var input = flag.String("i", "", "Input File Path")
 	var output = flag.String("o", "", "Output File Path")
@@ -36,15 +36,16 @@ func getPrompt() (string, string) {
 		// Instructions
 		color.Yellow("Type '/exit' to exit chat mode\n\n")
 
-		chat.ChatMode()
+		chat.ChatMode(getModel())
 
+		return "", "", true
 	}
 
 	if *version {
 		fmt.Println("Terminal AI v0.1")
 		// Github URL
 		fmt.Println("https://github.com/Elixir-Craft/terminalAI")
-		os.Exit(0)
+		return "", "", true
 	}
 
 	if *input == "" && *prompt == "" && !*clipBoard {
@@ -88,7 +89,7 @@ func getPrompt() (string, string) {
 	// fmt.Println(*output)
 	// os.Exit(0)
 
-	return promptText, *output
+	return promptText, *output, false
 
 }
 
@@ -119,9 +120,12 @@ func main() {
 
 	model := getModel()
 
-	prompt, output := getPrompt()
+	prompt, output, exit := getPrompt()
+	if exit {
+		return
+	}
 
-	response, err := model.Generate(context.Background(), prompt)
+	response, err := model()(context.Background(), prompt)
 	if err != nil {
 		log.Fatal(err)
 	}
