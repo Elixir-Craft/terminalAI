@@ -37,6 +37,7 @@ func ChatMode(model models.Model) {
 				defer color.Unset()
 				fmt.Print("Model: ")
 				_, err = response.WriteTo(os.Stdout)
+				fmt.Println()
 			}()
 			if err != nil {
 				log.Fatal(err)
