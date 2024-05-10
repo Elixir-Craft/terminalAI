@@ -31,7 +31,16 @@ func ChatMode(model models.Model) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			color.Green("Model: %s", response)
+
+			func() {
+				color.Set(color.FgGreen)
+				defer color.Unset()
+				fmt.Print("Model: ")
+				_, err = response.WriteTo(os.Stdout)
+			}()
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -25,17 +26,32 @@ func init() {
 		return func() Chat {
 			c := model.StartChat()
 
-			return func(ctx context.Context, prompt string) (string, error) {
-				resp, err := c.SendMessage(ctx, genai.Text(prompt))
+			return func(ctx context.Context, prompt string) (StreamingOutput, error) {
+				stream := c.SendMessageStream(ctx, genai.Text(prompt))
 				if err != nil {
-					return "", err
+					return nil, err
 				}
 
-				str := ""
-				for _, part := range resp.Candidates[0].Content.Parts {
-					str += fmt.Sprintf("%v", part)
-				}
-				return str, nil
+				c := make(chan string)
+				go func() {
+					defer close(c)
+					for {
+						res, err := stream.Next()
+						if err == iterator.Done {
+							break
+						}
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						str := ""
+						for _, part := range res.Candidates[0].Content.Parts {
+							str += fmt.Sprintf("%v", part)
+						}
+						c <- str
+					}
+				}()
+				return c, nil
 			}
 		}
 	})
