@@ -1,7 +1,10 @@
 package models
 
 import (
+	"bytes"
 	"context"
+	"io"
+	"log"
 	"os"
 
 	openai "github.com/sashabaranov/go-openai"
@@ -25,6 +28,7 @@ func init() {
 				Role:    openai.ChatMessageRoleSystem,
 				Content: `You are an AI assistant who gives a quality response to whatever humans ask of you.`,
 			}},
+			NoStreaming: true,
 		})
 	})
 }
@@ -35,6 +39,7 @@ type OpenAIConfig struct {
 	MaxTokens         int
 	Temperature, TopP float32
 	Prefix            []openai.ChatCompletionMessage
+	NoStreaming       bool
 }
 
 func NewOpenAIModel(modelName string, cfg *OpenAIConfig) Model {
@@ -47,30 +52,66 @@ func NewOpenAIModel(modelName string, cfg *OpenAIConfig) Model {
 		var messages []openai.ChatCompletionMessage
 		messages = append(messages, cfg.Prefix...)
 
-		return func(ctx context.Context, prompt string) (string, error) {
+		return func(ctx context.Context, prompt string) (io.Reader, error) {
 			messages = append(messages, openai.ChatCompletionMessage{
 				Role:    openai.ChatMessageRoleUser,
 				Content: prompt,
 			})
 
-			resp, err := client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+			req := openai.ChatCompletionRequest{
 				Model:       modelName,
 				Messages:    messages,
 				MaxTokens:   cfg.MaxTokens,
 				Temperature: cfg.Temperature,
 				TopP:        cfg.TopP,
-			})
-			if err != nil {
-				return "", err
+				Stream:      !cfg.NoStreaming,
 			}
 
-			content := resp.Choices[0].Message.Content
-			messages = append(messages, openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleAssistant,
-				Content: content,
-			})
+			//https://github.com/nomic-ai/gpt4all/issues/1513
+			if cfg.NoStreaming {
+				res, err := client.CreateChatCompletion(ctx, req)
+				if err != nil {
+					return nil, err
+				}
+				msg := res.Choices[0].Message.Content
+				messages = append(messages, openai.ChatCompletionMessage{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: msg,
+				})
+				return bytes.NewReader([]byte(msg)), nil
+			}
 
-			return content, nil
+			stream, err := client.CreateChatCompletionStream(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+
+			r, w := io.Pipe()
+			go func() {
+				defer w.Close()
+				msg := ""
+				for {
+					res, err := stream.Recv()
+					if err == io.EOF {
+						break
+					}
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					delta := res.Choices[0].Delta.Content
+					msg += delta
+					_, err = w.Write([]byte(delta))
+					if err != nil {
+						log.Fatal(err)
+					}
+				}
+				messages = append(messages, openai.ChatCompletionMessage{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: msg,
+				})
+			}()
+			return r, nil
 		}
 	}
 }

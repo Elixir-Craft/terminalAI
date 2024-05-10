@@ -2,12 +2,13 @@ package models
 
 import (
 	"context"
+	"io"
 	"log"
 )
 
 type Model StartChat
 type StartChat func() Chat
-type Chat func(ctx context.Context, prompt string) (string, error)
+type Chat func(ctx context.Context, prompt string) (io.Reader, error)
 
 type Backend func(modelName string) Model
 
