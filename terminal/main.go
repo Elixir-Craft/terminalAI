@@ -7,13 +7,15 @@ import (
 	"io"
 	"log"
 	"os"
+	"terminalAI/chat"
 	"terminalAI/models"
 
 	"github.com/atotto/clipboard"
+	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 )
 
-func getPrompt() (string, string) {
+func getPrompt() (string, string, bool) {
 
 	var input = flag.String("i", "", "Input File Path")
 	var output = flag.String("o", "", "Output File Path")
@@ -21,15 +23,29 @@ func getPrompt() (string, string) {
 	var clipBoard = flag.Bool("c", false, "Prompt From Clipboard")
 	var version = flag.Bool("v", false, "Version")
 
+	var chatMode = flag.Bool("chat", false, "Chat Mode")
+
 	flag.Parse()
 
 	var promptText string
+
+	if *chatMode {
+
+		color.Cyan("Terminal AI Chat Mode\n\n")
+
+		// Instructions
+		color.Yellow("Type '/exit' to exit chat mode\n\n")
+
+		chat.ChatMode(getModel())
+
+		return "", "", true
+	}
 
 	if *version {
 		fmt.Println("Terminal AI v0.1")
 		// Github URL
 		fmt.Println("https://github.com/Elixir-Craft/terminalAI")
-		os.Exit(0)
+		return "", "", true
 	}
 
 	if *input == "" && *prompt == "" && !*clipBoard {
@@ -73,7 +89,7 @@ func getPrompt() (string, string) {
 	// fmt.Println(*output)
 	// os.Exit(0)
 
-	return promptText, *output
+	return promptText, *output, false
 
 }
 
@@ -83,14 +99,20 @@ func getModel() models.Model {
 	return models.NewModel(backend, model)
 }
 
-func outputResponse(response string, output string) {
-	if output != "" {
-		err := os.WriteFile(output, []byte(response), 0644)
+func outputResponse(response models.StreamingOutput, output string) {
+	var f *os.File
+	if output == "" || output == "-" {
+		f = os.Stdout
+	} else {
+		f, err := os.OpenFile(output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		fmt.Println(response)
+		defer f.Close()
+	}
+	_, err := response.WriteTo(f)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -104,9 +126,12 @@ func main() {
 
 	model := getModel()
 
-	prompt, output := getPrompt()
+	prompt, output, exit := getPrompt()
+	if exit {
+		return
+	}
 
-	response, err := model.Generate(context.Background(), prompt)
+	response, err := model()(context.Background(), prompt)
 	if err != nil {
 		log.Fatal(err)
 	}
