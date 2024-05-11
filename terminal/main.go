@@ -101,19 +101,22 @@ func getModel() models.Model {
 
 func outputResponse(response models.StreamingOutput, output string) {
 	var f *os.File
+	var err error
 	if output == "" || output == "-" {
 		f = os.Stdout
 	} else {
-		f, err := os.OpenFile(output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		f, err = os.OpenFile(output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer f.Close()
 	}
-	_, err := response.WriteTo(f)
+	_, err = response.WriteTo(f)
 	if err != nil {
+		log.Fatal("Error writing response to output")
 		log.Fatal(err)
 	}
+	fmt.Println()
 }
 
 func main() {
