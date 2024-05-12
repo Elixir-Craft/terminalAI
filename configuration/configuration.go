@@ -17,7 +17,6 @@ type Configuration struct {
 	Model     string `yaml:"MODEL"`
 	GeminiKey string `yaml:"GEMINI_KEY"`
 	OpenAIKey string `yaml:"OPENAI_KEY"`
-	// Add more configuration options as needed
 }
 
 var defaultConfig = Configuration{
@@ -26,21 +25,6 @@ var defaultConfig = Configuration{
 	GeminiKey: "",
 	OpenAIKey: "",
 }
-
-// func main() {
-// 	configFile := getConfigFilePath()
-// 	config := readConfig(configFile)
-
-// 	// Use the configuration
-// 	fmt.Println("Option1:", config.Option1)
-// 	fmt.Println("Option2:", config.Option2)
-
-// 	// Modify configuration
-// 	config.Option2 = 42
-
-// 	// Save configuration
-// 	saveConfig(config, configFile)
-// }
 
 func getConfigFilePath() string {
 	var configDir string
@@ -82,21 +66,19 @@ func readConfig(filePath string) Configuration {
 	configFile, err := os.ReadFile(filePath)
 	if err != nil {
 		// If configuration file doesn't exist or cannot be read, return default configuration
-		fmt.Println("\x1b[31mConfiguration file not found or cannot be read. Using default configuration.\x1b[37m")
-		fmt.Printf("Please run '\x1b[32mterminalAI config init\x1b[37m' to set up the configuration.\n\n")
-		// return Configuration{
-		// 	Service:   "",
-		// 	Model:     "",
-		// 	GeminiKey: "",
-		// 	OpenAIKey: "",
-		// }
+		fmt.Println("\x1b[31mConfiguration file not found or cannot be read.\x1b[37m")
+		fmt.Printf("Please run '\x1b[32mterminalai config init\x1b[37m' to set up the configuration.\n\n")
+
 		initConfig()
 	}
 
 	// Unmarshal configuration from YAML
 	var config Configuration
 	if err := yaml.Unmarshal(configFile, &config); err != nil {
-		panic(err)
+		fmt.Println("\x1b[31mError unmarshalling configuration.\x1b[37m")
+		fmt.Println("Please run '\x1b[32mterminalai config init\x1b[37m' to reset the configuration.")
+		// panic(err)
+		os.Exit(1)
 	}
 
 	return config
@@ -111,6 +93,7 @@ func saveConfig(config Configuration, filePath string) {
 
 	// Write configuration to file
 	if err := os.WriteFile(filePath, configData, 0644); err != nil {
+		fmt.Println("\x1b[31mError saving configuration.\x1b[37m")
 		panic(err)
 	}
 
@@ -119,11 +102,16 @@ func saveConfig(config Configuration, filePath string) {
 
 func Config() {
 
-	// if os.Args[2] == "show" {
-	// 	showConfig()
+	if len(os.Args) < 3 {
+		// Usage
+		fmt.Println("Usage: terminalai config <command>")
+		fmt.Println("Commands:")
+		fmt.Println("  show\t\t\t\tShow current configuration")
 
-	// }
-	// else if os.Args[]
+		fmt.Println("  set\t <key> <value>\t\tSet configuration")
+		fmt.Println("  init\t\t\t\tInitialize configuration")
+		os.Exit(1)
+	}
 
 	switch os.Args[2] {
 	case "show":
@@ -131,16 +119,19 @@ func Config() {
 	case "set":
 		if len(os.Args) < 4 {
 			// Usage
-			fmt.Println("Usage: terminalAI config set <key> <value>")
+			fmt.Println("Usage: terminalai config set <key> <value>")
 			os.Exit(1)
 		}
 		if len(os.Args) == 4 {
-			os.Args[4] = ""
-		}
-		setConfig(os.Args[3], os.Args[4])
+			// fmt.Println("Value cannot be empty.")
+			setConfig(os.Args[3], "")
 
-	case "reset":
-		resetConfig()
+		} else {
+			setConfig(os.Args[3], os.Args[4])
+		}
+
+	// case "reset":
+	// 	resetConfig()
 
 	case "init":
 		initConfig()
@@ -151,6 +142,13 @@ func Config() {
 func GetConfig(key string) string {
 	configFile := getConfigFilePath()
 	config := readConfig(configFile)
+
+	// service and model cannot be empty
+	if config.Service == "" || config.Model == "" {
+		fmt.Println("\x1b[31mService and Model configuration cannot be empty.\x1b[37m")
+		fmt.Println("Please run '\x1b[32mterminalai config set <key> <value>\x1b[37m' to set the configuration.")
+		os.Exit(1)
+	}
 
 	switch key {
 	case "service":
@@ -176,6 +174,7 @@ func showConfig() {
 	fmt.Println("model:", config.Model)
 	fmt.Println("Gemini API Key:", config.GeminiKey)
 	fmt.Println("OpenAI API Key:", config.OpenAIKey)
+	os.Exit(0)
 }
 
 func setConfig(key string, value string) {
@@ -196,25 +195,11 @@ func setConfig(key string, value string) {
 	saveConfig(config, configFile)
 
 	fmt.Println("Configuration updated successfully.")
+	os.Exit(0)
 
-}
-
-func resetConfig() {
-	configFile := getConfigFilePath()
-	config := Configuration{
-		Service:   "",
-		Model:     "",
-		GeminiKey: "",
-		OpenAIKey: "",
-	}
-
-	saveConfig(config, configFile)
-
-	fmt.Println("Configuration reset successfully.")
 }
 
 func initConfig() {
-	// Prompt user to set configuration
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -223,15 +208,16 @@ func initConfig() {
 
 	fmt.Println("Welcome to Terminal AI Configuration Setup")
 	fmt.Println("Please set the following configuration options:")
-	fmt.Printf("1. Terminal AI Service (e.g., openai, gemini):")
+	fmt.Printf("1. Terminal AI Service (e.g., openai, gemini):\x1b[32m")
 	config.Service = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
-	fmt.Printf("2. Terminal AI Model (e.g., gpt-3, gpt-4-turbo, etc.):")
+	fmt.Printf("\x1b[37m2. Terminal AI Model (e.g., gpt-3, gpt-4-turbo, etc.):\x1b[32m")
 	config.Model = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
-	fmt.Printf("3. Google API Key (optional):")
+	fmt.Printf("\x1b[37m3. Google API Key (optional):\x1b[32m")
 	config.GeminiKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
-	fmt.Printf("4. OpenAI API Key (optional):")
+	fmt.Printf("\x1b[37m4. OpenAI API Key (optional):\x1b[32m")
 	config.OpenAIKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
 
+	fmt.Printf("\x1b[37m")
 	saveConfig(config, configFile)
 	fmt.Println("Configuration setup completed successfully.")
 	os.Exit(0)
