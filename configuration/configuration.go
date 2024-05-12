@@ -42,7 +42,7 @@ func getConfigFilePath() string {
 	switch OS := runtime.GOOS; OS {
 	case "windows":
 		// On Windows, use the APPDATA directory
-		configDir = filepath.Join(os.Getenv("APPDATA"), "MyTool")
+		configDir = filepath.Join(os.Getenv("APPDATA"), "TeminalAI")
 		configFileName = "config.yaml"
 	case "darwin":
 		// On macOS, use the home directory
@@ -50,7 +50,7 @@ func getConfigFilePath() string {
 		if err != nil {
 			panic(err)
 		}
-		configDir = filepath.Join(home, "Library", "Application Support", "MyTool")
+		configDir = filepath.Join(home, "Library", "Application Support", "TeminalAI")
 		configFileName = "config.yaml"
 	default:
 		// On Unix-like systems, use the home directory
@@ -58,7 +58,7 @@ func getConfigFilePath() string {
 		if err != nil {
 			panic(err)
 		}
-		configDir = filepath.Join(home, ".mytool")
+		configDir = filepath.Join(home, ".teminalAI")
 		configFileName = "config.yaml"
 	}
 
