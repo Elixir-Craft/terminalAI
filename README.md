@@ -15,7 +15,7 @@ go mod tidy
 ## Build
 
 ```bash
- go build -o terminal-ai
+ go build -o terminalai
 ```
 
 
@@ -26,24 +26,33 @@ go mod tidy
 * `-p <Prompt>` Prompt
 * `-c ` Prompt from clipboard
 * `--chat` Chat with AI
+* `config` Configure Services and API Keys
+
+
+## Set configurations
+
+```bash
+./terminalai config init
+```
+
 
 
 ## Usage
 
 ```bash
-./terminal-ai "Generate Some Text"
+./terminalai "Generate Some Text"
 ```
 ```bash
-./terminal-ai -p " $(tree -L 2) generate docker-compose file for this project" -o docker-compose.yaml 
+./terminalai -p " $(tree -L 2) generate docker-compose file for this project" -o docker-compose.yaml 
 ```
 ```bash
-./terminal-ai -i input.txt -p "Read the following text and generate a summary" -o output.txt
+./terminalai -i input.txt -p "Read the following text and generate a summary" -o output.txt
 ```
 
 
 Chat (Currently only supports for Gemini)
 ```bash
-./terminal-ai --chat
+./terminalai --chat
 ```
 
 
