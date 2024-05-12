@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"terminalAI/chat"
+	"terminalAI/configuration"
 	"terminalAI/models"
 
 	"github.com/atotto/clipboard"
@@ -16,6 +17,8 @@ import (
 )
 
 func getPrompt() (string, string, bool) {
+
+	var promptText string
 
 	var input = flag.String("i", "", "Input File Path")
 	var output = flag.String("o", "", "Output File Path")
@@ -27,7 +30,10 @@ func getPrompt() (string, string, bool) {
 
 	flag.Parse()
 
-	var promptText string
+	if os.Args[1] == "config" && len(os.Args) > 1 {
+		configuration.Config()
+		os.Exit(0)
+	}
 
 	if *chatMode {
 
@@ -94,8 +100,12 @@ func getPrompt() (string, string, bool) {
 }
 
 func getModel() models.Model {
-	backend := os.Getenv("TERMINAL_AI_BACKEND")
-	model := os.Getenv("TERMINAL_AI_MODEL")
+	// backend := os.Getenv("TERMINAL_AI_BACKEND")
+	// model := os.Getenv("TERMINAL_AI_MODEL")
+
+	backend := string(configuration.GetConfig("service"))
+	model := string(configuration.GetConfig("model"))
+
 	return models.NewModel(backend, model)
 }
 
@@ -127,12 +137,11 @@ func main() {
 		panic("Error loading .env file")
 	}
 
-	model := getModel()
-
 	prompt, output, exit := getPrompt()
 	if exit {
 		return
 	}
+	model := getModel()
 
 	response, err := model()(context.Background(), prompt)
 	if err != nil {
