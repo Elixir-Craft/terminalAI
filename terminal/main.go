@@ -30,7 +30,7 @@ func getPrompt() (string, string, bool) {
 
 	flag.Parse()
 
-	if os.Args[1] == "config" && len(os.Args) > 2 {
+	if os.Args[1] == "config" && len(os.Args) > 1 {
 		configuration.Config()
 		os.Exit(0)
 	}
