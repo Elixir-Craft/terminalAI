@@ -20,6 +20,13 @@ type Configuration struct {
 	// Add more configuration options as needed
 }
 
+var defaultConfig = Configuration{
+	Service:   "",
+	Model:     "",
+	GeminiKey: "",
+	OpenAIKey: "",
+}
+
 // func main() {
 // 	configFile := getConfigFilePath()
 // 	config := readConfig(configFile)
@@ -75,13 +82,15 @@ func readConfig(filePath string) Configuration {
 	configFile, err := os.ReadFile(filePath)
 	if err != nil {
 		// If configuration file doesn't exist or cannot be read, return default configuration
-		fmt.Println("Configuration file not found or cannot be read. Using default configuration.")
-		return Configuration{
-			Service:   "",
-			Model:     "",
-			GeminiKey: "",
-			OpenAIKey: "",
-		}
+		fmt.Println("\x1b[31mConfiguration file not found or cannot be read. Using default configuration.\x1b[37m")
+		fmt.Printf("Please run '\x1b[32mterminalAI config init\x1b[37m' to set up the configuration.\n\n")
+		// return Configuration{
+		// 	Service:   "",
+		// 	Model:     "",
+		// 	GeminiKey: "",
+		// 	OpenAIKey: "",
+		// }
+		initConfig()
 	}
 
 	// Unmarshal configuration from YAML
@@ -210,19 +219,21 @@ func initConfig() {
 	reader := bufio.NewReader(os.Stdin)
 
 	configFile := getConfigFilePath()
-	config := readConfig(configFile)
+	config := defaultConfig
 
 	fmt.Println("Welcome to Terminal AI Configuration Setup")
 	fmt.Println("Please set the following configuration options:")
-	fmt.Println("1. Terminal AI Service (e.g., openai, gemini)")
+	fmt.Printf("1. Terminal AI Service (e.g., openai, gemini):")
 	config.Service = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
-	fmt.Println("2. Terminal AI Model (e.g., gpt-3, gpt-4-turbo, etc.)")
+	fmt.Printf("2. Terminal AI Model (e.g., gpt-3, gpt-4-turbo, etc.):")
 	config.Model = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
-	fmt.Println("3. Google API Key (optional)")
+	fmt.Printf("3. Google API Key (optional):")
 	config.GeminiKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
-	fmt.Println("4. OpenAI API Key (optional)")
+	fmt.Printf("4. OpenAI API Key (optional):")
 	config.OpenAIKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
 
 	saveConfig(config, configFile)
+	fmt.Println("Configuration setup completed successfully.")
+	os.Exit(0)
 
 }
