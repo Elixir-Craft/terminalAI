@@ -13,10 +13,10 @@ import (
 
 // Configuration struct
 type Configuration struct {
-	TerminalAIBackend string `yaml:"TERMINAL_AI_BACKEND"`
-	TerminalAIModel   string `yaml:"TERMINAL_AI_MODEL"`
-	GoogleAPIKey      string `yaml:"GOOGLE_AI_API_KEY"`
-	OpenAPIKey        string `yaml:"OPENAI_API_KEY"`
+	Service   string `yaml:"SERVICE"`
+	Model     string `yaml:"MODEL"`
+	GeminiKey string `yaml:"GEMINI_KEY"`
+	OpenAIKey string `yaml:"OPENAI_KEY"`
 	// Add more configuration options as needed
 }
 
@@ -42,7 +42,7 @@ func getConfigFilePath() string {
 	switch OS := runtime.GOOS; OS {
 	case "windows":
 		// On Windows, use the APPDATA directory
-		configDir = filepath.Join(os.Getenv("APPDATA"), "TeminalAI")
+		configDir = filepath.Join(os.Getenv("APPDATA"), "TerminalAI")
 		configFileName = "config.yaml"
 	case "darwin":
 		// On macOS, use the home directory
@@ -50,7 +50,7 @@ func getConfigFilePath() string {
 		if err != nil {
 			panic(err)
 		}
-		configDir = filepath.Join(home, "Library", "Application Support", "TeminalAI")
+		configDir = filepath.Join(home, "Library", "Application Support", "TerminalAI")
 		configFileName = "config.yaml"
 	default:
 		// On Unix-like systems, use the home directory
@@ -58,7 +58,7 @@ func getConfigFilePath() string {
 		if err != nil {
 			panic(err)
 		}
-		configDir = filepath.Join(home, ".teminalAI")
+		configDir = filepath.Join(home, ".terminalAI")
 		configFileName = "config.yaml"
 	}
 
@@ -77,10 +77,10 @@ func readConfig(filePath string) Configuration {
 		// If configuration file doesn't exist or cannot be read, return default configuration
 		fmt.Println("Configuration file not found or cannot be read. Using default configuration.")
 		return Configuration{
-			TerminalAIBackend: "",
-			TerminalAIModel:   "",
-			GoogleAPIKey:      "",
-			OpenAPIKey:        "",
+			Service:   "",
+			Model:     "",
+			GeminiKey: "",
+			OpenAIKey: "",
 		}
 	}
 
@@ -146,13 +146,13 @@ func GetConfig(key string) string {
 	switch key {
 	case "service":
 		// if empty, return ""
-		return config.TerminalAIBackend
+		return config.Service
 	case "model":
-		return config.TerminalAIModel
+		return config.Model
 	case "gemini-key":
-		return config.GoogleAPIKey
+		return config.GeminiKey
 	case "openai-key":
-		return config.OpenAPIKey
+		return config.OpenAIKey
 	}
 
 	return ""
@@ -163,10 +163,10 @@ func showConfig() {
 	config := readConfig(configFile)
 
 	// print whole configuration with key value pairs
-	fmt.Println("Sevice:", config.TerminalAIBackend)
-	fmt.Println("model:", config.TerminalAIModel)
-	fmt.Println("Gemini API Key:", config.GoogleAPIKey)
-	fmt.Println("OpenAI API Key:", config.OpenAPIKey)
+	fmt.Println("Sevice:", config.Service)
+	fmt.Println("model:", config.Model)
+	fmt.Println("Gemini API Key:", config.GeminiKey)
+	fmt.Println("OpenAI API Key:", config.OpenAIKey)
 }
 
 func setConfig(key string, value string) {
@@ -175,13 +175,13 @@ func setConfig(key string, value string) {
 
 	switch key {
 	case "service":
-		config.TerminalAIBackend = value
+		config.Service = value
 	case "model":
-		config.TerminalAIModel = value
+		config.Model = value
 	case "gemini-key":
-		config.GoogleAPIKey = value
+		config.GeminiKey = value
 	case "openai-key":
-		config.OpenAPIKey = value
+		config.OpenAIKey = value
 	}
 
 	saveConfig(config, configFile)
@@ -193,10 +193,10 @@ func setConfig(key string, value string) {
 func resetConfig() {
 	configFile := getConfigFilePath()
 	config := Configuration{
-		TerminalAIBackend: "",
-		TerminalAIModel:   "",
-		GoogleAPIKey:      "",
-		OpenAPIKey:        "",
+		Service:   "",
+		Model:     "",
+		GeminiKey: "",
+		OpenAIKey: "",
 	}
 
 	saveConfig(config, configFile)
@@ -215,13 +215,13 @@ func initConfig() {
 	fmt.Println("Welcome to Terminal AI Configuration Setup")
 	fmt.Println("Please set the following configuration options:")
 	fmt.Println("1. Terminal AI Service (e.g., openai, gemini)")
-	config.TerminalAIBackend = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
+	config.Service = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
 	fmt.Println("2. Terminal AI Model (e.g., gpt-3, gpt-4-turbo, etc.)")
-	config.TerminalAIModel = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
+	config.Model = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
 	fmt.Println("3. Google API Key (optional)")
-	config.GoogleAPIKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
+	config.GeminiKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
 	fmt.Println("4. OpenAI API Key (optional)")
-	config.OpenAPIKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
+	config.OpenAIKey = strings.TrimSpace(func() string { input, _ := reader.ReadString('\n'); return input }())
 
 	saveConfig(config, configFile)
 
