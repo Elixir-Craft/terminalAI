@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
+	"terminalAI/configuration"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/iterator"
@@ -12,8 +12,10 @@ import (
 )
 
 func init() {
-	RegisterBackend("genai", func(modelName string) Model {
-		apiKey := os.Getenv("GOOGLE_AI_API_KEY")
+	RegisterBackend("gemini", func(modelName string) Model {
+		// apiKey := os.Getenv("GOOGLE_AI_API_KEY")
+		apiKey := string(configuration.GetConfig("gemini-key"))
+		// fmt.Println(apiKey)
 
 		client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
 		if err != nil {

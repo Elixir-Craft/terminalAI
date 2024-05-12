@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 	"log"
-	"os"
+	"terminalAI/configuration"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -12,7 +12,8 @@ import (
 func init() {
 	RegisterBackend("openai", func(modelName string) Model {
 		return NewOpenAIModel(modelName, &OpenAIConfig{
-			ApiKey:  os.Getenv("OPENAI_API_KEY"),
+			// ApiKey:  os.Getenv("OPENAI_API_KEY"),
+			ApiKey:  string(configuration.GetConfig("openai-key")),
 			BaseURL: "https://api.openai.com/v1",
 		})
 	})
