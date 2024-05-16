@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"terminalAI/chat"
 	"terminalAI/configuration"
 	"terminalAI/models"
@@ -131,6 +132,15 @@ func outputResponse(response models.StreamingOutput, output string) {
 
 func main() {
 	// fmt.Println("Terminal AI")
+
+	// handle keyboard interrupt
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		fmt.Println("\nExiting...")
+		os.Exit(0)
+	}()
 
 	err := godotenv.Load()
 	if err != nil {
