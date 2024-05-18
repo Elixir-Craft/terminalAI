@@ -27,7 +27,7 @@ func getPrompt() (string, string, bool) {
 	var clipBoard = flag.Bool("c", false, "Prompt From Clipboard")
 	var version = flag.Bool("v", false, "Version")
 
-	var chatMode = flag.Bool("chat", false, "Chat Mode")
+	// var chatMode = flag.Bool("chat", false, "Chat Mode")
 
 	flag.Parse()
 
@@ -36,7 +36,8 @@ func getPrompt() (string, string, bool) {
 		os.Exit(0)
 	}
 
-	if *chatMode {
+	// if *chatMode {
+	if os.Args[1] == "chat" {
 
 		color.Cyan("Terminal AI Chat Mode\n\n")
 

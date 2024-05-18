@@ -25,7 +25,7 @@ go mod tidy
 * `-o <output file>` Output file path
 * `-p <Prompt>` Prompt
 * `-c ` Prompt from clipboard
-* `--chat` Chat with AI
+* `chat` Chat with AI
 * `config` Configure Services and API Keys
 
 
