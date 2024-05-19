@@ -54,7 +54,7 @@ go build -v -o out ./...
 
 Chat (Currently only supports for Gemini)
 ```bash
-./terminalai --chat
+./terminalai chat
 ```
 
 

@@ -15,7 +15,6 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/fatih/color"
-	"github.com/joho/godotenv"
 )
 
 func getPrompt() (string, string, bool) {
@@ -29,6 +28,15 @@ func getPrompt() (string, string, bool) {
 	var version = flag.Bool("v", false, "Version")
 
 	flag.Parse()
+
+	if len(os.Args) < 2 {
+
+		fmt.Println("No prompt or command provided")
+
+		fmt.Println("terminalai --help for usage")
+		os.Exit(1)
+
+	}
 
 	if os.Args[1] == "config" && len(os.Args) > 1 {
 		configuration.Config()
@@ -47,7 +55,7 @@ func getPrompt() (string, string, bool) {
 	}
 
 	if *version {
-		fmt.Println("Terminal AI v1.0")
+		fmt.Println("Terminal AI v0.1.0")
 		fmt.Println("https://github.com/Elixir-Craft/terminalAI")
 		return "", "", true
 	}
@@ -98,8 +106,6 @@ func getPrompt() (string, string, bool) {
 }
 
 func getModel() models.Model {
-	// backend := os.Getenv("TERMINAL_AI_BACKEND")
-	// model := os.Getenv("TERMINAL_AI_MODEL")
 
 	backend := string(configuration.GetConfig("service"))
 	model := string(configuration.GetConfig("model"))
@@ -138,11 +144,6 @@ func main() {
 		fmt.Println("\nExiting...")
 		os.Exit(0)
 	}()
-
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading .env file")
-	}
 
 	prompt, output, exit := getPrompt()
 	if exit {
