@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"terminalAI/configuration"
+
+	"github.com/Elixir-Craft/terminalAI/configuration"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/iterator"

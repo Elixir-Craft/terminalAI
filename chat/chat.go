@@ -7,7 +7,8 @@ import (
 	"log"
 	"os"
 	"strings"
-	"terminalAI/models"
+
+	"github.com/Elixir-Craft/terminalAI/models"
 
 	"github.com/fatih/color"
 )
