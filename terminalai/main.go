@@ -27,8 +27,6 @@ func getPrompt() (string, string, bool) {
 	var clipBoard = flag.Bool("c", false, "Prompt From Clipboard")
 	var version = flag.Bool("v", false, "Version")
 
-	// var chatMode = flag.Bool("chat", false, "Chat Mode")
-
 	flag.Parse()
 
 	if os.Args[1] == "config" && len(os.Args) > 1 {
@@ -36,12 +34,10 @@ func getPrompt() (string, string, bool) {
 		os.Exit(0)
 	}
 
-	// if *chatMode {
 	if os.Args[1] == "chat" {
 
 		color.Cyan("Terminal AI Chat Mode\n\n")
 
-		// Instructions
 		color.Yellow("Type '/exit' to exit chat mode\n\n")
 
 		chat.ChatMode(getModel())
@@ -50,8 +46,7 @@ func getPrompt() (string, string, bool) {
 	}
 
 	if *version {
-		fmt.Println("Terminal AI v0.1")
-		// Github URL
+		fmt.Println("Terminal AI v1.0")
 		fmt.Println("https://github.com/Elixir-Craft/terminalAI")
 		return "", "", true
 	}
