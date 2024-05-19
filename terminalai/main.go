@@ -55,7 +55,7 @@ func getPrompt() (string, string, bool) {
 	}
 
 	if *version {
-		fmt.Println("Terminal AI v1.0")
+		fmt.Println("Terminal AI v0.1.0")
 		fmt.Println("https://github.com/Elixir-Craft/terminalAI")
 		return "", "", true
 	}
