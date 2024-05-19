@@ -15,7 +15,7 @@ go mod tidy
 ## Build
 
 ```bash
- go build -o terminalai
+go build -v -o out ./...  
 ```
 
 
