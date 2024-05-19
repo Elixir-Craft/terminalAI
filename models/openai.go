@@ -4,7 +4,8 @@ import (
 	"context"
 	"io"
 	"log"
-	"terminalAI/configuration"
+
+	"github.com/Elixir-Craft/terminalAI/configuration"
 
 	openai "github.com/sashabaranov/go-openai"
 )

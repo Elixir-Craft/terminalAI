@@ -8,9 +8,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"terminalAI/chat"
-	"terminalAI/configuration"
-	"terminalAI/models"
+
+	"github.com/Elixir-Craft/terminalAI/chat"
+	"github.com/Elixir-Craft/terminalAI/configuration"
+	"github.com/Elixir-Craft/terminalAI/models"
 
 	"github.com/atotto/clipboard"
 	"github.com/fatih/color"
