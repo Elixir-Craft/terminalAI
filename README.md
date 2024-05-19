@@ -1,3 +1,5 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/Elixir-Craft/terminalAI.svg)](https://pkg.go.dev/github.com/Elixir-Craft/terminalAI)
+
 # Terminal AI
 
 A command line tool that uses Gemini AI and OpenAI API to generate text and code.
