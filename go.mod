@@ -1,4 +1,4 @@
-module terminalAI
+module github.com/Elixir-Craft/terminalAI
 
 go 1.22.2
 
