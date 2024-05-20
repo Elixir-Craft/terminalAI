@@ -7,6 +7,8 @@ A command line tool that uses Gemini AI and OpenAI API to generate text and code
 
 ## Installation
 
+You can download the latest release for Debian or Arch-based distros from the [release page](https://github.com/Elixir-Craft/terminalAI/releases/latest), or you can build from the source.
+
 
 If you using Arch Linux or Arch based distro, you can install the terminalAI using [PKGBUILD](https://github.com/Elixir-Craft/terminalAI-pkg) 
 
