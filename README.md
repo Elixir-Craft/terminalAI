@@ -7,6 +7,8 @@ A command line tool that uses Gemini AI and OpenAI API to generate text and code
 
 ## Installation
 
+You can download the latest release for Debian or Arch based distros from the [release page](https://github.com/Elixir-Craft/terminalAI/releases/latest), or you can build from the source.
+
 
 If you using Arch Linux or Arch based distro, you can install the terminalAI using [PKGBUILD](https://github.com/Elixir-Craft/terminalAI-pkg) 
 
@@ -41,7 +43,7 @@ go build -v -o out ./...
 ## Set configurations
 
 ```bash
-./terminalai config init
+terminalai config init
 ```
 
 
@@ -49,19 +51,19 @@ go build -v -o out ./...
 ## Usage
 
 ```bash
-./terminalai "Generate Some Text"
+terminalai "Generate Some Text"
 ```
 ```bash
-./terminalai -p " $(tree -L 2) generate docker-compose file for this project" -o docker-compose.yaml 
+terminalai -p " $(tree -L 2) generate docker-compose file for this project" -o docker-compose.yaml 
 ```
 ```bash
-./terminalai -i input.txt -p "Read the following text and generate a summary" -o output.txt
+terminalai -i input.txt -p "Read the following text and generate a summary" -o output.txt
 ```
 
 
-Chat (Currently only supports for Gemini)
+Chat 
 ```bash
-./terminalai chat
+terminalai chat
 ```
 
 
