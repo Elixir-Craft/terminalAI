@@ -1,0 +1,27 @@
+name: Validate PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+
+  Validate_PR_Title:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check PR Title
+      run: |
+        SKIP_LABEL="autorelease: pending"
+        pr_labels='${{ toJSON(github.event.pull_request.labels) }}'
+        if [[ ${pr_labels} == *"${SKIP_LABEL}"* ]]; then
+          echo "Skipping PR title validation due to the presence of the '${SKIP_LABEL}' label"
+          exit 0
+        fi
+
+        pr_title="${{ github.event.pull_request.title }}"
+        PR_NAME_RE="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\(.*\\))?(!)?: .+$"
+        if [[ ! ${pr_title} =~ ${PR_NAME_RE} ]]; then
+          echo "error: invalid PR title"
+          echo "Example: feat: subject"
+          exit 1
+        fi
